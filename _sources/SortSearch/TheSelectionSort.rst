@@ -34,15 +34,15 @@ places 55, and so on. The function is shown in
     :caption: Selection Sort
 
     def selection_sort(a_list):
-        for i, item in enumerate(a_list):
-            min_idx = len(a_list) - 1
-            for j in range(i, len(a_list)):
-                if a_list[j] < a_list[min_idx]:
-                    min_idx = j
-            if min_idx != i:
-                a_list[min_idx], a_list[i] = a_list[i], a_list[min_idx]
-
-
+        for i in range(len(a_list)):
+            mx_idx = 0
+            for j in range(len(a_list) - i):
+                if a_list[j] > a_list[mx_idx]:
+                    mx_idx = j
+            if mx_idx != len(a_list) - i - 1:
+                new_end = len(a_list) - i - 1
+                a_list[mx_idx], a_list[new_end] = a_list[new_end], a_list[mx_idx]
+                
     a_list = [54, 26, 93, 17, 77, 31, 44, 55, 20]
     selection_sort(a_list)
     print(a_list)
