@@ -55,6 +55,15 @@ ehthumbs_vista.db
 # Don't include VSCode generated files
 .vscode
 *.code-workspace
+.nova
+*.log
+*.bak
+build.out
+build_info
+build_success
+sync_success
+sphinx_settings.json
+rs-substitutes.xml
 
 # Don't inlucde SublimeText files
 # Cache files for Sublime Text
@@ -98,5 +107,11 @@ GitHub.sublime-settings
 # Don't track codechat config (will be generated automatically)
 codechat_config.yaml
 
+# Don't track deprecated workflows
+.github/workflows/deploy.yml
+.github/workflows/test-build.yml
+
+# Don't track virtual enviroment setup
 venv
+venv312
 .cache
