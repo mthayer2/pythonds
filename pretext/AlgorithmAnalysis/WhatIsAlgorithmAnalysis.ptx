@@ -563,4 +563,180 @@ def mystery(n):
             operations as a function of the input size&#x2014;is the foundation
             of what we will formalize in the next section as
             <term>Big-O notation</term>.</p>
+  <subsection xml:id="algorithm-analysis_practice-linear-search">
+    <title>Practice: Measuring Linear Search Performance</title>
+    <p>Now it is your turn to put benchmarking into practice.
+              Below you will write a <c>linear_search</c> function, build a
+              collection of random numbers, and time how long the search
+              takes&#x2014;all from scratch.</p>
+    <p>The <term>linear search</term> algorithm works by examining each
+              element of the collection one at a time, starting from the
+              beginning, until either the target value is found or the end of the
+              collection is reached. This is the simplest searching strategy and
+              is a good example of <m>O(n)</m> behavior&#x2014;in the worst case,
+              every element must be checked.</p>
+    <p>Before you begin, let us introduce the <c>random</c> module.
+              Python's <c>random</c> module provides functions for generating
+              pseudo-random numbers. The function we will use is
+              <c>random.randint(a, b)</c>, which returns a random integer
+              <m>n</m> such that <m>a \le n \le b</m>. For example,
+              <c>random.randint(1, 100)</c> might return <c>42</c> on one call
+              and <c>7</c> on the next&#x2014;each call produces a new random
+              value within the range. We can use this inside a loop to fill a
+              list with random data, giving us a realistic collection to
+              search through.</p>
+    <p>In the starter code below, a <c>populate_collection</c> function
+              has been provided that creates an empty list, then uses a
+              <c>for</c> loop to append one random integer per iteration.
+              Study it so you understand how the collection is built. Your
+              tasks are:</p>
+    <p><ol>
+      <li><p>Complete the <c>linear_search</c> function. It should accept a
+              list and a target value, iterate through the list, and return
+              <c>True</c> if the target is found or <c>False</c>
+              otherwise.</p></li>
+      <li><p>In <c>main</c>, call <c>linear_search</c> with the collection
+              and target value.</p></li>
+      <li><p>In <c>main</c>, use <c>time.time()</c> to record the start
+              time before the search and the end time after the search,
+              then calculate and print the elapsed time.</p></li>
+    </ol></p>
+    <p>When you run your code, hidden test cases will automatically
+              check whether your <c>linear_search</c> is correct&#x2014;you will
+              see whether each test passed or failed.</p>
+    <listing xml:id="lst-practice-linear-search"> <program label="lst-practice-linear-search" interactive="activecode" language="python">
+      <input>
+import time
+import random
+
+
+def populate_collection(size):
+    collection = []
+    for i in range(size):
+        random_value = random.randint(1, size * 10)
+        collection.append(random_value)
+    return collection
+
+
+def linear_search(collection, target):
+    # TODO: Implement linear search.
+    # Iterate through the collection and return True if target is found,
+    # False otherwise.
+    pass
+
+
+def main():
+    collection_size = 1000000
+    collection = populate_collection(collection_size)
+
+    # We use -1 as the target because our collection only contains
+    # positive numbers, so this guarantees a worst-case search
+    # (every element must be checked).
+    target = -1
+
+    # TODO: Record the start time using time.time()
+
+    # TODO: Call linear_search with the collection and target
+
+    # TODO: Record the end time using time.time()
+
+    # TODO: Calculate the elapsed time (end - start)
+
+    # TODO: Print the collection size, whether the target was found,
+    #       and the elapsed time.
+    pass
+
+
+main()
+      </input>
+      <tests>
+import unittest
+
+class TestLinearSearch(unittest.TestCase):
+
+    def test_1_basic_found(self):
+        """Test 1 - Basic search: can it find a value that exists?"""
+        result = linear_search([10, 20, 30, 40, 50], 30)
+        self.assertTrue(result,
+            "\n  linear_search([10, 20, 30, 40, 50], 30) returned %s instead of True."
+            "\n  Hint: Loop through each element and compare it to the target."
+            " Return True as soon as you find a match." % result)
+
+    def test_2_not_found(self):
+        """Test 2 - Not found: does it return False when the target is missing?"""
+        result = linear_search([10, 20, 30, 40, 50], 99)
+        self.assertFalse(result,
+            "\n  linear_search([10, 20, 30, 40, 50], 99) returned %s instead of False."
+            "\n  Hint: After checking every element without a match, return False."
+            " Make sure the return False is OUTSIDE (after) the loop, not inside it." % result)
+
+    def test_3_empty_list(self):
+        """Test 3 - Edge case: does it handle an empty list?"""
+        result = linear_search([], 1)
+        self.assertFalse(result,
+            "\n  linear_search([], 1) returned %s instead of False."
+            "\n  Hint: When the list is empty the loop body never runs."
+            " Make sure your function still returns False in that case." % result)
+
+    def test_4_first_and_last(self):
+        """Test 4 - Boundaries: can it find the first AND last element?"""
+        first = linear_search([5, 10, 15], 5)
+        last  = linear_search([5, 10, 15], 15)
+        self.assertTrue(first,
+            "\n  linear_search([5, 10, 15], 5) returned %s instead of True."
+            "\n  Hint: Make sure your loop starts checking from index 0." % first)
+        self.assertTrue(last,
+            "\n  linear_search([5, 10, 15], 15) returned %s instead of True."
+            "\n  Hint: Make sure your loop checks ALL elements including the last one."
+            " A common mistake is returning False too early inside the loop." % last)
+
+    def test_5_single_and_duplicates(self):
+        """Test 5 - Special cases: single-element list and duplicates"""
+        single_found     = linear_search([42], 42)
+        single_not_found = linear_search([42], 7)
+        duplicates       = linear_search([1, 2, 2, 3, 3, 3], 3)
+        self.assertTrue(single_found,
+            "\n  linear_search([42], 42) returned %s instead of True."
+            "\n  Hint: A one-element list should still be searchable." % single_found)
+        self.assertFalse(single_not_found,
+            "\n  linear_search([42], 7) returned %s instead of False."
+            "\n  Hint: The single element does not match, so return False." % single_not_found)
+        self.assertTrue(duplicates,
+            "\n  linear_search([1, 2, 2, 3, 3, 3], 3) returned %s instead of True."
+            "\n  Hint: Duplicates should not cause issues — you only need to find the target once." % duplicates)
+
+unittest.main()
+      </tests>
+    </program>
+    </listing>
+    <p>After your implementation passes all tests, try changing
+              <c>collection_size</c> to different values such as 100000,
+              500000, 1000000, and 2000000. What pattern do you observe in the
+              elapsed time? Does it match the <m>O(n)</m> linear growth you
+              learned about earlier in this section?</p>
+  </subsection>
+  <subsection xml:id="algorithm-analysis_pause-and-think">
+    <title>Pause and Think</title>
+    <p>Take a moment to reflect on what you have read and practiced in
+              this section. Thinking critically about the material will help
+              you retain it and identify areas where you may want to dig
+              deeper.</p>
+    <exercises>
+      <exercise label="algo_analysis_reflect1">
+        <statement>
+          <p>In your own words, write a few sentences summarizing what you
+                    learned in this lesson today.</p>
+        </statement>
+        <response/>
+      </exercise>
+      <exercise label="algo_analysis_reflect2">
+        <statement>
+          <p>What did you find challenging in this reading? Come up with a
+                    question you might ask your peers or post on the message board
+                    to help you better understand that concept.</p>
+        </statement>
+        <response/>
+      </exercise>
+    </exercises>
+  </subsection>
 </section>

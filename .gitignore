@@ -68,7 +68,7 @@ sync_success
 sphinx_settings.json
 rs-substitutes.xml
 
-# Don't include SublimeText files
+# Don't inlucde SublimeText files
 # Cache files for Sublime Text
 *.tmlanguage.cache
 *.tmPreferences.cache
@@ -113,3 +113,7 @@ codechat_config.yaml
 # Don't track deprecated workflows
 .github/workflows/deploy.yml
 .github/workflows/test-build.yml
+
+# Don't track virtual enviroment setup
+venv
+venv312

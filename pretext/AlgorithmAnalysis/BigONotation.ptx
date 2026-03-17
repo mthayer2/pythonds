@@ -1,30 +1,34 @@
 <?xml version="1.0"?>
 <section xml:id="algorithm-analysis_big-o-notation">
   <title>Big O Notation</title>
-  <p>When trying to characterize an algorithm's efficiency in terms of
-            execution time, independent of any particular program or computer, it is
-            important to quantify the number of operations or steps that the
-            algorithm will require. In the previous section, we saw that counting
-            the dominant operation&#x2014;rather than measuring wall-clock
-            time&#x2014;gave us a machine-independent way to compare our three
-            summation algorithms. The iterative version performed <m>n</m>
-            operations, the nested-loop version performed roughly
-            <m>\frac{n^2}{2}</m>, and the formula performed just 1. Now we need
-            a concise notation to express these differences. If each of these steps
-            is considered to be a basic unit of computation, then the execution time
-            for an algorithm can be expressed as the number of steps required to
-            solve the problem. Deciding on an appropriate basic unit of computation
-            can be a complicated problem and will depend on how the algorithm is
-            implemented.</p>
-  <p>A good basic unit of computation for comparing the summation algorithms
-            shown earlier might be the number of assignment statements
-            performed to compute the sum. In the function <c>sum_of_n</c>, the number of
-            assignment statements is 1 (<m>the\_sum = 0</m>)
-            plus the value of <em>n</em> (the number of times we perform
-            <m>the\_sum = the\_sum + i</m>). We can denote this by a function, call it <m>T</m>,
-            where <m>T(n) = 1 + n</m>. The parameter <em>n</em> is often referred to as
-            the <q>size of the problem,</q> and we can read this as <q><m>T(n)</m> is the time
-            it takes to solve a problem of size <m>n</m>, namely <m>1 + n</m> steps.</q></p>
+  <p>In the previous section, we compared three algorithms for computing
+            the sum of the first <m>n</m> integers. By counting the dominant
+            operation&#x2014;the assignment statement&#x2014;instead of measuring
+            wall-clock time, we obtained a machine-independent picture of each
+            algorithm's efficiency: the iterative version
+            (<xref ref="lst-sum1"/>) performed <m>n</m> operations, the
+            nested-loop version (<xref ref="lst-sum-nested"/>) performed roughly
+            <m>\frac{n^2}{2}</m>, and the closed-form formula
+            (<xref ref="lst-sum3"/>) performed just 1. We described these as
+            <em>linear</em>, <em>quadratic</em>, and <em>constant</em>
+            performance. Now we need a concise, formal notation to express these
+            differences&#x2014;one that lets us quickly compare any two algorithms
+            without worrying about exact operation counts or machine-specific
+            details. That notation is called <term>Big O</term>.</p>
+  <p>Before introducing Big O itself, let us first become comfortable
+            with <m>T(n)</m>&#x2014;the function that counts the <em>exact</em>
+            number of operations an algorithm performs for an input of size
+            <m>n</m>. Once you can derive <m>T(n)</m> systematically from code,
+            Big O will follow naturally as a simplification.</p>
+  <p>Recall the iterative summation function <c>sum_of_n</c>
+            (<xref ref="lst-sum1"/>). A good basic unit of computation for this
+            algorithm is the assignment statement. The number of assignments is
+            1 (<m>the\_sum = 0</m>) plus the value of <em>n</em> (the number of
+            times we perform <m>the\_sum = the\_sum + i</m>). We express this
+            as a function, call it <m>T</m>, where <m>T(n) = 1 + n</m>. The
+            parameter <em>n</em> is the <q>size of the problem,</q> and we read
+            <m>T(n)</m> as <q>the number of steps it takes to solve a problem
+            of size <m>n</m>.</q></p>
   <p>In the summation functions given above, it makes sense to use the number
             of terms in the summation to denote the size of the problem. We can then
             say that the sum of the first 100,000 integers is a bigger instance of
@@ -33,37 +37,300 @@
             would be greater than for the smaller case. Our goal then is to show how
             the algorithm's execution time changes with respect to the size of the
             problem.</p>
-  <p>Computer scientists prefer to take this analysis technique one step
-            further. It turns out that the exact number of operations is not as
-            important as determining the most dominant part of the <m>T(n)</m>
-            function. In other words, as the problem gets larger, some portion of
-            the <m>T(n)</m> function tends to overpower the rest. This dominant
-            term is what, in the end, is used for comparison. The <term>order of
-                magnitude</term> function describes the part of <m>T(n)</m> that increases
-            the fastest as the value of <em>n</em> increases. Order of magnitude is often
-            called <term>Big O notation</term> (for <em>order</em>) and written as
-            <m>O(f(n))</m>. It provides a useful approximation of the actual
-            number of steps in the computation. The function <m>f(n)</m> provides
-            a simple representation of the dominant part of the original
-            <m>T(n)</m>.</p>
-  <p>In the above example, <m>T(n) = 1 + n</m>. As <em>n</em> gets larger, the
-            constant 1 will become less and less significant to the final result. If
-            we are looking for an approximation for <m>T(n)</m>, then we can drop
-            the 1 and simply say that the running time is <m>O(n)</m>. It is
-            important to note that the 1 is certainly significant for
-            <m>T(n)</m>. However, as <em>n</em> gets large, our approximation will be
-            just as accurate without it.</p>
-  <p>As another example, suppose that for some algorithm, the exact number of
-            steps is <m>T(n)=5n^{2} + 27n + 1005</m>. When <em>n</em> is small, say 1 or 2,
-            the constant 1005 seems to be the dominant part of the function.
-            However, as <em>n</em> gets larger, the <m>n^{2}</m> term becomes the most
-            important. In fact, when <em>n</em> is really large, the other two terms become
-            insignificant in the role that they play in determining the final
-            result. Again, to approximate <m>T(n)</m> as <em>n</em> gets large, we can
-            ignore the other terms and focus on <m>5n^{2}</m>. In addition, the
-            coefficient <m>5</m> becomes insignificant as <em>n</em> gets large. We
-            would say then that the function <m>T(n)</m> has an order of
-            magnitude <m>f(n) = n^{2}</m>, or simply that it is <m>O(n^{2})</m>.</p>
+  <p>To derive <m>T(n)</m> from any piece of code, follow these four
+            rules:</p>
+  <p><ol>
+    <li><p><em>Simple statements cost 1.</em> Each assignment, comparison,
+        arithmetic operation, or return counts as a single step.</p></li>
+    <li><p><em>Sequential statements add.</em> If one block takes
+        <m>a</m> steps and the next takes <m>b</m> steps, the total is
+        <m>a + b</m>.</p></li>
+    <li><p><em>A loop multiplies.</em> If a loop runs <m>k</m> times and
+        the body costs <m>c</m> steps per iteration, the loop contributes
+        <m>k \times c</m> steps.</p></li>
+    <li><p><em>Nested loops multiply again.</em> If an outer loop runs
+        <m>m</m> times and an inner loop runs <m>k</m> times, the inner
+        body executes <m>m \times k</m> times total.</p></li>
+  </ol></p>
+  <p>Let us apply these rules to a more involved example. Consider the
+            fragment of Python code shown in
+            <xref ref="algorithm-analysis_lst-dummycode"/>. Although this program
+            does not do anything useful, it lets us practice counting operations
+            systematically.</p>
+  <listing xml:id="algorithm-analysis_lst-dummycode"><program label="algorithm-analysis_lst-dummycode" interactive="activecode" language="python">
+    <input>
+# Counting assignment operations
+# --------------------------------
+# This code does not do anything useful, but it lets us practice
+# counting the number of assignment operations as a function of n.
+# Try changing n and observe how the count changes.
+
+n = 10
+count = 0
+
+a = 5;  count += 1
+b = 6;  count += 1
+c = 10; count += 1
+for i in range(n):
+    for j in range(n):
+        x = i * i; count += 1
+        y = j * j; count += 1
+        z = i * j; count += 1
+for k in range(n):
+    w = a * k + 45; count += 1
+    v = b * b;      count += 1
+d = 33; count += 1
+
+print("n = %d" % n)
+print("Total assignments = %d" % count)
+print("Formula: 3n^2 + 2n + 4 = %d" % (3*n**2 + 2*n + 4))
+</input>
+  </program></listing>
+  <p>Applying our rules step by step:</p>
+  <p><ul>
+    <li><p><em>Three assignments before the loops</em> (<c>a = 5</c>,
+        <c>b = 6</c>, <c>c = 10</c>): by Rule 1, that is
+        <m>3</m> steps.</p></li>
+    <li><p><em>The nested loop</em>: the outer loop runs <m>n</m> times,
+        the inner loop runs <m>n</m> times, and the body contains 3
+        assignments. By Rules 3 and 4:
+        <m>n \times n \times 3 = 3n^{2}</m> steps.</p></li>
+    <li><p><em>The single loop</em>: runs <m>n</m> times with 2
+        assignments in the body. By Rule 3:
+        <m>n \times 2 = 2n</m> steps.</p></li>
+    <li><p><em>One final assignment</em> (<c>d = 33</c>): by Rule 1,
+        <m>1</m> step.</p></li>
+  </ul></p>
+  <p>By Rule 2, we add everything together:
+            <m>T(n) = 3 + 3n^{2} + 2n + 1 = 3n^{2} + 2n + 4</m>. Run the
+            code above with different values of <c>n</c> to verify that the
+            formula matches the counted total.</p>
+  <exercises>
+    <title>Self Check</title>
+    <exercise label="tn_sc1">
+      <statement>
+        <p>What is <m>T(n)</m> for the following code?</p>
+        <program language="python">
+          <input>
+total = 0
+for i in range(n):
+    total = total + i
+for j in range(n):
+    for k in range(n):
+        total = total + 1
+          </input>
+        </program>
+      </statement>
+      <choices>
+        <choice>
+          <statement>
+            <p><m>T(n) = n + n^{2}</m></p>
+          </statement>
+          <feedback>
+            <p>You counted the loops correctly, but do not forget the
+                        assignment <c>total = 0</c> at the top. Every simple
+                        statement counts as 1.</p>
+          </feedback>
+        </choice>
+        <choice correct="yes">
+          <statement>
+            <p><m>T(n) = n^{2} + n + 1</m></p>
+          </statement>
+          <feedback>
+            <p>Correct! The initial assignment is 1 step, the first loop
+                        contributes <m>n</m>, and the nested loop contributes
+                        <m>n \times n = n^{2}</m>. Adding: <m>1 + n + n^{2}</m>.</p>
+          </feedback>
+        </choice>
+        <choice>
+          <statement>
+            <p><m>T(n) = 2n + 1</m></p>
+          </statement>
+          <feedback>
+            <p>It looks like you added the two loops as if they were both
+                        single loops. The second loop is <em>nested</em>&#x2014;an inner
+                        loop of <m>n</m> inside an outer loop of <m>n</m> gives
+                        <m>n^{2}</m>, not <m>n</m>.</p>
+          </feedback>
+        </choice>
+        <choice>
+          <statement>
+            <p><m>T(n) = n^{3}</m></p>
+          </statement>
+          <feedback>
+            <p>Cubic would require three levels of nesting. Here the
+                        first loop and the nested loop are <em>sequential</em>
+                        (one after the other), so their costs add rather than
+                        multiply.</p>
+          </feedback>
+        </choice>
+      </choices>
+    </exercise>
+    <exercise label="tn_sc2">
+      <statement>
+        <p>What is <m>T(n)</m> for the following code?</p>
+        <program language="python">
+          <input>
+x = 0
+for i in range(n):
+    x = x + 1
+y = 0
+for j in range(n):
+    y = y + 1
+          </input>
+        </program>
+      </statement>
+      <choices>
+        <choice>
+          <statement>
+            <p><m>T(n) = n^{2}</m></p>
+          </statement>
+          <feedback>
+            <p>Be careful&#x2014;these two loops are <em>sequential</em>,
+                        not nested. Sequential loops add; nested loops multiply.</p>
+          </feedback>
+        </choice>
+        <choice>
+          <statement>
+            <p><m>T(n) = 2n</m></p>
+          </statement>
+          <feedback>
+            <p>You correctly added the two loops (<m>n + n</m>), but
+                        do not forget the two assignment statements
+                        <c>x = 0</c> and <c>y = 0</c>.</p>
+          </feedback>
+        </choice>
+        <choice correct="yes">
+          <statement>
+            <p><m>T(n) = 2n + 2</m></p>
+          </statement>
+          <feedback>
+            <p>Correct! Two initial assignments (2) plus two sequential
+                        loops each running <m>n</m> times (<m>n + n = 2n</m>).
+                        Total: <m>2n + 2</m>.</p>
+          </feedback>
+        </choice>
+        <choice>
+          <statement>
+            <p><m>T(n) = n + 2</m></p>
+          </statement>
+          <feedback>
+            <p>It looks like you only counted one of the two loops.
+                        Both loops run <m>n</m> times and are sequential, so
+                        their costs add: <m>n + n = 2n</m>.</p>
+          </feedback>
+        </choice>
+      </choices>
+    </exercise>
+  </exercises>
+  <p>Now that you can systematically derive <m>T(n)</m> from code, the
+            next question is: do we really need all those exact terms? Consider
+            the expression <m>T(n) = 3n^{2} + 2n + 4</m> from
+            <xref ref="algorithm-analysis_lst-dummycode"/>. For small values of
+            <m>n</m>, every term matters. But algorithm analysis is concerned
+            with how algorithms perform on <em>large</em> data sets, not small
+            ones. To see why this matters, consider a simpler question: which
+            grows faster, <m>n^{2}</m> or <m>1000n</m>?</p>
+  <table xml:id="tbl-n2-vs-1000n">
+    <title>Comparing <m>n^{2}</m> and <m>1000n</m></title>
+    <tabular halign="center">
+      <row header="yes" bottom="medium">
+        <cell right="minor"><m>n</m></cell>
+        <cell right="minor"><m>n^{2}</m></cell>
+        <cell right="minor"><m>1000n</m></cell>
+        <cell>Larger?</cell>
+      </row>
+      <row bottom="minor">
+        <cell right="minor">10</cell>
+        <cell right="minor">100</cell>
+        <cell right="minor">10,000</cell>
+        <cell><m>1000n</m></cell>
+      </row>
+      <row bottom="minor">
+        <cell right="minor">100</cell>
+        <cell right="minor">10,000</cell>
+        <cell right="minor">100,000</cell>
+        <cell><m>1000n</m></cell>
+      </row>
+      <row bottom="minor">
+        <cell right="minor">1,000</cell>
+        <cell right="minor">1,000,000</cell>
+        <cell right="minor">1,000,000</cell>
+        <cell>tie</cell>
+      </row>
+      <row bottom="minor">
+        <cell right="minor">10,000</cell>
+        <cell right="minor">100,000,000</cell>
+        <cell right="minor">10,000,000</cell>
+        <cell><m>n^{2}</m></cell>
+      </row>
+      <row>
+        <cell right="minor">100,000</cell>
+        <cell right="minor">10,000,000,000</cell>
+        <cell right="minor">100,000,000</cell>
+        <cell><m>n^{2}</m></cell>
+      </row>
+    </tabular>
+  </table>
+  <p>For small <m>n</m> the coefficient 1000 makes the linear term look
+            enormous. But once <m>n</m> passes 1,000, <m>n^{2}</m> overtakes
+            <m>1000n</m> and never looks back&#x2014;by <m>n = 100{,}000</m>
+            it is 100 times larger. This is exactly why computer scientists do
+            not care about constant coefficients or lower-order terms: for the
+            large inputs that matter in practice, the <em>shape</em> of the
+            growth curve (quadratic vs.&#xA0;linear vs.&#xA0;constant) determines
+            performance, not the exact multiplier in front.</p>
+  <p>This insight leads us to <term>Big O notation</term>. The
+            <term>order of magnitude</term> function describes the part of
+            <m>T(n)</m> that increases the fastest as <m>n</m> increases.
+            Order of magnitude is often called <term>Big O</term> (for
+            <em>order</em>) and written as <m>O(f(n))</m>. It provides a useful
+            approximation&#x2014;an <em>upper bound</em>&#x2014;on the actual
+            number of steps in the computation. The function <m>f(n)</m>
+            provides a simple representation of the dominant part of the
+            original <m>T(n)</m>.</p>
+  <p>More precisely, we say that <m>T(n)</m> is <m>O(f(n))</m> if there
+            exist positive constants <m>c</m> and <m>n_0</m> such that
+            <m>T(n) \leq c \cdot f(n)</m> for all <m>n \geq n_0</m>. In
+            plain language, Big O gives an <em>upper bound</em> on growth: beyond
+            some starting point, <m>T(n)</m> will never grow faster than a
+            constant multiple of <m>f(n)</m>. We do not care about the exact
+            multiplier or what happens for small inputs&#x2014;only the long-run
+            growth trend matters.</p>
+  <p>To go from <m>T(n)</m> to Big O, apply three rules:</p>
+  <p><ol>
+    <li><p><em>Keep only the dominant term.</em> The dominant term is the
+        one that grows fastest as <m>n</m> increases. In
+        <m>3n^{2} + 2n + 4</m>, the <m>n^{2}</m> term eventually
+        dwarfs the others&#x2014;just as we saw with <m>n^{2}</m> vs.
+        <m>1000n</m> in <xref ref="tbl-n2-vs-1000n"/>.</p></li>
+    <li><p><em>Drop constant coefficients.</em> Since Big O describes
+        the shape of the growth curve rather than an exact count,
+        <m>3n^{2}</m> and <m>n^{2}</m> have the same Big O.</p></li>
+    <li><p><em>Drop additive constants.</em> A flat amount of
+        work, like <m>+4</m>, becomes irrelevant once <m>n</m>
+        is large enough.</p></li>
+  </ol></p>
+  <p>Let us walk through two examples. First, <m>T(n) = 1 + n</m>
+            (from <c>sum_of_n</c>). As <em>n</em> gets larger, the constant 1
+            becomes less and less significant. We drop it and say the running
+            time is <m>O(n)</m>. The 1 is still part of the exact count
+            <m>T(n)</m>, but for large <em>n</em> our approximation is just as
+            accurate without it.</p>
+  <p>Second, suppose an algorithm has
+            <m>T(n) = 5n^{2} + 27n + 1005</m>. When <em>n</em> is small, say 1
+            or 2, the constant 1005 seems to dominate. However, as <em>n</em>
+            gets larger, the <m>n^{2}</m> term becomes the most important. We
+            drop the lower-order terms <m>27n</m> and <m>1005</m>, and then
+            drop the coefficient <m>5</m>. The result:
+            <m>O(n^{2})</m>.</p>
+  <p>Returning to our worked example from
+            <xref ref="algorithm-analysis_lst-dummycode"/>: we derived
+            <m>T(n) = 3n^{2} + 2n + 4</m>. By looking at the exponents, we can
+            easily see that the <m>n^{2}</m> term will be dominant and therefore
+            this fragment of code is <m>O(n^{2})</m>. All of the other terms as
+            well as the coefficient on the dominant term can be ignored as
+            <em>n</em> grows larger.</p>
   <exercises>
     <title>Self Check</title>
     <exercise label="bigo_sc1">
@@ -116,15 +383,18 @@
   </exercises>
   <p>Although we do not see this in the summation example, sometimes the
             performance of an algorithm depends on the exact values of the data
-            rather than simply the size of the problem. For these kinds of
-            algorithms we need to characterize their performance in terms of <term>best-case</term>,
-            <term>worst-case</term>, or <term>average-case</term> performance. The worst-case
-            performance refers to a particular data set where the algorithm performs
-            especially poorly, whereas a different data set for
-            the exact same algorithm might have extraordinarily good (best-case) performance.
-            However, in most cases the algorithm performs somewhere in between these
-            two extremes (average-case performance). It is important for a computer scientist to understand
-            these distinctions so they are not misled by one particular case.</p>
+            rather than simply the size of the problem. When this happens, a single
+            <m>T(n)</m> function is not enough to tell the whole story. We need to
+            characterize performance in terms of three scenarios:
+            <term>best-case</term>, <term>worst-case</term>, and
+            <term>average-case</term> performance.</p>
+  <p>The <em>worst case</em> is the scenario in which the algorithm does the
+            most work for a given input size. The <em>best case</em> is the
+            scenario in which it does the least work. The <em>average case</em>
+            represents the expected performance over all possible inputs of
+            size <m>n</m>. Understanding these distinctions is important so that
+            a single lucky (or unlucky) test does not mislead you about an
+            algorithm's true behavior.</p>
   <p>For example, consider searching for a specific item in a list of
             <m>n</m> items by checking each one from the beginning. In the
             <em>best case</em>, the item is the very first one we check&#x2014;just
@@ -211,6 +481,76 @@
       </row>
     </tabular>
   </table>
+  <p>To build intuition for these growth rates, here is a brief
+            description of each:</p>
+  <p><ul>
+    <li><p><m>O(1)</m> &#x2013; <em>Constant:</em> The running time does not
+        depend on the input size at all. Accessing an element in a list
+        by its index is a constant-time operation.</p></li>
+    <li><p><m>O(\log n)</m> &#x2013; <em>Logarithmic:</em> The running time
+        grows very slowly because the algorithm repeatedly divides the
+        problem in half. Binary search is the classic example: each
+        comparison eliminates half of the remaining items, so doubling
+        <m>n</m> adds only one extra step. If you are unfamiliar with
+        logarithms, think of <m>\log_2 n</m> as <q>how many times can
+        I divide <m>n</m> by 2 before reaching 1?</q> For
+        <m>n = 1{,}000{,}000</m>, that is only about 20.</p></li>
+    <li><p><m>O(n)</m> &#x2013; <em>Linear:</em> The running time grows in
+        direct proportion to the input size. Scanning every element in
+        a list once is linear.</p></li>
+    <li><p><m>O(n \log n)</m> &#x2013; <em>Log-linear:</em> Slightly worse
+        than linear. Many efficient sorting algorithms, such as merge
+        sort, fall into this category.</p></li>
+    <li><p><m>O(n^{2})</m> &#x2013; <em>Quadratic:</em> Common when an
+        algorithm contains a pair of nested loops that each run
+        <m>n</m> times. Simple sorting algorithms like bubble sort
+        are quadratic.</p></li>
+    <li><p><m>O(n^{3})</m> &#x2013; <em>Cubic:</em> Three levels of nested
+        loops. Certain matrix multiplication algorithms are cubic.</p></li>
+    <li><p><m>O(2^{n})</m> &#x2013; <em>Exponential:</em> The running time
+        doubles with each additional input element. Algorithms that
+        enumerate all subsets of a set are exponential and quickly
+        become impractical.</p></li>
+  </ul></p>
+  <p>To see these growth rates in action, run the code in
+            <xref ref="lst-growth-rates"/>. It computes the value of each
+            common Big-O function for several input sizes and prints them
+            side by side. Watch how the exponential column explodes while
+            the logarithmic column barely moves.</p>
+  <listing xml:id="lst-growth-rates"> <program label="lst-growth-rates" interactive="activecode" language="python">
+    <input>
+import math
+
+print("%-8s %-10s %-10s %-10s %-12s %-14s %-14s %-14s" %
+      ("n", "O(1)", "O(log n)", "O(n)", "O(n log n)",
+       "O(n^2)", "O(n^3)", "O(2^n)"))
+print("-" * 100)
+
+for n in [1, 2, 5, 10, 20, 50, 100]:
+    constant  = 1
+    logarithm = round(math.log2(n), 2) if n > 0 else 0
+    linear    = n
+    nlogn     = round(n * math.log2(n), 2) if n > 0 else 0
+    quadratic = n ** 2
+    cubic     = n ** 3
+    if n &lt;= 25:
+        exponential = 2 ** n
+    else:
+        exponential = "too large!"
+
+    print("%-8d %-10s %-10s %-10s %-12s %-14s %-14s %-14s" %
+          (n, constant, logarithm, linear, nlogn,
+           quadratic, cubic, exponential))
+    </input>
+  </program>
+  </listing>
+  <p>Notice that for <m>n = 100</m>, the quadratic function produces
+            10,000 and the cubic produces 1,000,000, while <m>2^{n}</m> is so
+            astronomically large it cannot even be displayed. Meanwhile,
+            <m>\log n</m> is only about 6.6. This is why choosing the right
+            algorithm matters&#x2014;the difference between <m>O(n)</m> and
+            <m>O(n^{2})</m> can mean the difference between a program that
+            finishes in seconds and one that takes hours.</p>
   <p><xref ref="i11_id2fig-graphfigure"/> shows graphs of the common
             functions from <xref ref="algorithm-analysis_tbl-fntable"/>. Notice that when <em>n</em> is small, the
             functions are not very well defined with respect to one another. It is
@@ -221,51 +561,6 @@
     <caption xmlns:c="https://www.sphinx-doc.org/" xmlns:changeset="https://www.sphinx-doc.org/" xmlns:citation="https://www.sphinx-doc.org/" xmlns:cpp="https://www.sphinx-doc.org/" xmlns:index="https://www.sphinx-doc.org/" xmlns:js="https://www.sphinx-doc.org/" xmlns:math="https://www.sphinx-doc.org/" xmlns:py="https://www.sphinx-doc.org/" xmlns:rst="https://www.sphinx-doc.org/" xmlns:std="https://www.sphinx-doc.org/">Figure 1: Plot of Common Big O Functions</caption>
     <image source="AlgorithmAnalysis/Figures/newplot.png" width="50%"/>
   </figure>
-  <p>As a final example, suppose that we have the fragment of Python code
-            shown in <xref ref="algorithm-analysis_lst-dummycode"/>. Although this program does not really do
-            anything, it is instructive to see how we can take actual code and
-            analyze performance.</p>
-  <listing xml:id="algorithm-analysis_lst-dummycode"><program label="algorithm-analysis_lst-dummycode" interactive="activecode" language="python">
-    <input>
-# Counting assignment operations
-# --------------------------------
-# This code does not do anything useful, but it lets us practice
-# counting the number of assignment operations as a function of n.
-# Try changing n and observe how the count changes.
-
-n = 10
-count = 0
-
-a = 5;  count += 1
-b = 6;  count += 1
-c = 10; count += 1
-for i in range(n):
-    for j in range(n):
-        x = i * i; count += 1
-        y = j * j; count += 1
-        z = i * j; count += 1
-for k in range(n):
-    w = a * k + 45; count += 1
-    v = b * b;      count += 1
-d = 33; count += 1
-
-print("n = %d" % n)
-print("Total assignments = %d" % count)
-print("Formula: 3n^2 + 2n + 4 = %d" % (3*n**2 + 2*n + 4))
-</input>
-  </program></listing>
-  <p>The number of assignment operations is the sum of four terms. The first
-            term is the constant 3, representing the three assignment statements at
-            the start of the fragment. The second term is <m>3n^{2}</m>, since
-            there are three statements that are performed <m>n^{2}</m> times due
-            to the nested iteration. The third term is <m>2n</m>, two statements
-            iterated <em>n</em> times. Finally, the fourth term is the constant 1,
-            representing the final assignment statement. This gives us
-            <m>T(n) = 3 + 3n^{2} + 2n + 1 = 3n^{2} + 2n + 4</m>. By looking at the exponents,
-            we can easily see that the <m>n^{2}</m> term will be dominant and
-            therefore this fragment of code is <m>O(n^{2})</m>. Note that all of
-            the other terms as well as the coefficient on the dominant term can be
-            ignored as <em>n</em> grows larger.</p>
   <exercises>
     <title>Self Check</title>
     <exercise label="bigo_sc2">
@@ -321,7 +616,8 @@ print("Formula: 3n^2 + 2n + 4 = %d" % (3*n**2 + 2*n + 4))
     <image source="AlgorithmAnalysis/Figures/newplot2.png" width="50%"/>
   </figure>
   <p><xref ref="fig-graphfigure2"/> shows a few of the common Big O functions as they
-            compare with the <m>T(n)</m> function discussed above. Note that
+            compare with the <m>T(n)</m> function from
+            <xref ref="algorithm-analysis_lst-dummycode"/>. Note that
             <m>T(n)</m> is initially larger than the cubic function. However, as
             n grows, the cubic function quickly overtakes <m>T(n)</m>. It is easy
             to see that <m>T(n)</m> then follows the quadratic function as
@@ -393,13 +689,16 @@ print(k)
         <input>
 # O(n^2) solution: compare every pair
 def find_min_quadratic(lst):
-    # Your code here
+    # TODO: For each element, compare it against every other element.
+    # If no other element is smaller, it is the minimum.
     pass
 
 
 # O(n) solution: single pass through the list
 def find_min_linear(lst):
-    # Your code here
+    # TODO: Start by assuming the first element is the minimum.
+    # Walk through the rest of the list, updating whenever you
+    # find something smaller.
     pass
 
 
@@ -407,8 +706,229 @@ test_list = [5, 3, 8, 1, 9, 2, 7]
 print("Quadratic:", find_min_quadratic(test_list))
 print("Linear:", find_min_linear(test_list))
         </input>
+        <tests>
+import unittest
+
+class TestFindMin(unittest.TestCase):
+
+    def test_1_quadratic_basic(self):
+        """Test 1 - Quadratic: does it find the minimum in a typical list?"""
+        result = find_min_quadratic([5, 3, 8, 1, 9, 2, 7])
+        self.assertEqual(result, 1,
+            "\n  find_min_quadratic([5, 3, 8, 1, 9, 2, 7]) returned %s instead of 1."
+            "\n  Hint: For each element, check if any other element is smaller."
+            " If none is smaller, that element is the minimum." % result)
+
+    def test_2_linear_basic(self):
+        """Test 2 - Linear: does it find the minimum in a typical list?"""
+        result = find_min_linear([5, 3, 8, 1, 9, 2, 7])
+        self.assertEqual(result, 1,
+            "\n  find_min_linear([5, 3, 8, 1, 9, 2, 7]) returned %s instead of 1."
+            "\n  Hint: Start with the first element as your current minimum."
+            " Loop through the rest and update whenever you find a smaller value." % result)
+
+    def test_3_single_element(self):
+        """Test 3 - Both functions: single-element list"""
+        q = find_min_quadratic([42])
+        l = find_min_linear([42])
+        self.assertEqual(q, 42,
+            "\n  find_min_quadratic([42]) returned %s instead of 42." % q)
+        self.assertEqual(l, 42,
+            "\n  find_min_linear([42]) returned %s instead of 42." % l)
+
+    def test_4_negative_numbers(self):
+        """Test 4 - Both functions: list with negative numbers"""
+        q = find_min_quadratic([10, -5, 3, -1])
+        l = find_min_linear([10, -5, 3, -1])
+        self.assertEqual(q, -5,
+            "\n  find_min_quadratic([10, -5, 3, -1]) returned %s instead of -5." % q)
+        self.assertEqual(l, -5,
+            "\n  find_min_linear([10, -5, 3, -1]) returned %s instead of -5." % l)
+
+    def test_5_min_at_boundaries(self):
+        """Test 5 - Both functions: minimum at start and end of list"""
+        q_first = find_min_quadratic([1, 5, 9])
+        l_last  = find_min_linear([9, 5, 1])
+        self.assertEqual(q_first, 1,
+            "\n  find_min_quadratic([1, 5, 9]) returned %s instead of 1."
+            "\n  Hint: Make sure you check the first element too." % q_first)
+        self.assertEqual(l_last, 1,
+            "\n  find_min_linear([9, 5, 1]) returned %s instead of 1."
+            "\n  Hint: Make sure you check all elements including the last." % l_last)
+
+unittest.main()
+        </tests>
       </program>
     </exercise>
   </exercises>
+  <p>Now that we have a formal notation for describing algorithmic
+            efficiency, we can apply it to more interesting problems. In the
+            next section, we will examine several solutions to the classic
+            <em>anagram detection</em> problem. Each solution uses a different
+            strategy&#x2014;and as we will see, those strategies lead to very
+            different Big-O classifications, from quadratic all the way down
+            to linear.</p>
   <video xml:id="findMinVid" youtube="p0COF_m6H1c" width="auto"/>
+  <subsection xml:id="algorithm-analysis_practice-big-o">
+    <title>Practice: Comparing Quadratic vs.&#xA0;Linear Solutions</title>
+    <p>In this exercise you will implement two different algorithms that
+              solve the same problem&#x2014;checking whether a list contains any
+              duplicate values&#x2014;and then measure the performance difference
+              between them.</p>
+    <p>The <em>brute-force</em> approach uses two nested loops to compare
+              every element against every other element. Because there are
+              <m>n</m> elements and each is compared to every other, this
+              strategy performs roughly <m>n^{2}</m> comparisons, making it
+              <m>O(n^{2})</m>.</p>
+    <p>A smarter approach takes advantage of a Python <c>set</c>. A set
+              is a collection that does not allow duplicate values, and
+              checking whether an item is already in a set is an <m>O(1)</m>
+              operation on average. By walking through the list once and
+              checking each element against a set of previously seen values,
+              we can detect duplicates in <m>O(n)</m> time.</p>
+    <p>Your tasks are:</p>
+    <p><ol>
+      <li><p>Complete <c>has_duplicates_quadratic</c> using nested loops.
+              Return <c>True</c> if any two different positions contain the
+              same value, <c>False</c> otherwise.</p></li>
+      <li><p>Complete <c>has_duplicates_linear</c> using a set. Walk through
+              the list, and for each element check if it is already in the
+              set. If it is, return <c>True</c>. Otherwise, add it to the
+              set. If you finish the loop without finding a duplicate,
+              return <c>False</c>.</p></li>
+      <li><p>In <c>main</c>, use <c>time.time()</c> to measure and print
+              the elapsed time for each approach.</p></li>
+    </ol></p>
+    <p>Hidden test cases will check both functions for correctness when
+              you run your code.</p>
+    <listing xml:id="lst-practice-big-o"> <program label="lst-practice-big-o" interactive="activecode" language="python">
+      <input>
+import time
+import random
+
+
+def populate_collection(size):
+    collection = []
+    for i in range(size):
+        random_value = random.randint(1, size * 10)
+        collection.append(random_value)
+    return collection
+
+
+def has_duplicates_quadratic(lst):
+    # TODO: Use two nested loops to compare every pair of elements.
+    # If lst[i] == lst[j] and i != j, return True.
+    # If no duplicates are found, return False.
+    pass
+
+
+def has_duplicates_linear(lst):
+    # TODO: Create an empty set. Loop through the list.
+    # If the current element is already in the set, return True.
+    # Otherwise, add it to the set.
+    # If you finish the loop, return False.
+    pass
+
+
+def main():
+    collection_size = 5000
+    collection = populate_collection(collection_size)
+
+    # TODO: Record start time, call has_duplicates_quadratic,
+    #       record end time, and print the elapsed time.
+
+    # TODO: Record start time, call has_duplicates_linear,
+    #       record end time, and print the elapsed time.
+
+    pass
+
+
+main()
+      </input>
+      <tests>
+import unittest
+
+class TestHasDuplicates(unittest.TestCase):
+
+    def test_1_quadratic_with_duplicates(self):
+        """Test 1 - Quadratic: detects duplicates when present"""
+        result = has_duplicates_quadratic([1, 2, 3, 2, 5])
+        self.assertTrue(result,
+            "\n  has_duplicates_quadratic([1, 2, 3, 2, 5]) returned %s instead of True."
+            "\n  Hint: Compare each element at index i with every element at index j"
+            " where j > i. Return True when you find a match." % result)
+
+    def test_2_quadratic_no_duplicates(self):
+        """Test 2 - Quadratic: returns False when no duplicates exist"""
+        result = has_duplicates_quadratic([1, 2, 3, 4, 5])
+        self.assertFalse(result,
+            "\n  has_duplicates_quadratic([1, 2, 3, 4, 5]) returned %s instead of False."
+            "\n  Hint: Make sure you only return True when two DIFFERENT positions"
+            " hold the same value. Return False after checking all pairs." % result)
+
+    def test_3_linear_with_duplicates(self):
+        """Test 3 - Linear: detects duplicates when present"""
+        result = has_duplicates_linear([10, 20, 30, 20, 50])
+        self.assertTrue(result,
+            "\n  has_duplicates_linear([10, 20, 30, 20, 50]) returned %s instead of True."
+            "\n  Hint: As you loop, check if each element is already in your set."
+            " If it is, return True immediately." % result)
+
+    def test_4_linear_no_duplicates(self):
+        """Test 4 - Linear: returns False when no duplicates exist"""
+        result = has_duplicates_linear([10, 20, 30, 40, 50])
+        self.assertFalse(result,
+            "\n  has_duplicates_linear([10, 20, 30, 40, 50]) returned %s instead of False."
+            "\n  Hint: If you finish the loop without finding any element already"
+            " in the set, return False." % result)
+
+    def test_5_edge_cases(self):
+        """Test 5 - Edge cases: empty list and single element"""
+        q_empty  = has_duplicates_quadratic([])
+        l_empty  = has_duplicates_linear([])
+        q_single = has_duplicates_quadratic([7])
+        l_single = has_duplicates_linear([7])
+        self.assertFalse(q_empty,
+            "\n  has_duplicates_quadratic([]) should return False for an empty list.")
+        self.assertFalse(l_empty,
+            "\n  has_duplicates_linear([]) should return False for an empty list.")
+        self.assertFalse(q_single,
+            "\n  has_duplicates_quadratic([7]) should return False for a single element.")
+        self.assertFalse(l_single,
+            "\n  has_duplicates_linear([7]) should return False for a single element.")
+
+unittest.main()
+      </tests>
+    </program>
+    </listing>
+    <p>After your implementation passes all tests, try increasing
+              <c>collection_size</c> to 10000, 20000, and 40000. Each time
+              you double the size, the quadratic version should take roughly
+              four times as long, while the linear version should take
+              roughly twice as long. This is the power of Big-O analysis
+              in action&#x2014;choosing the right algorithm can make a dramatic
+              difference.</p>
+  </subsection>
+  <subsection xml:id="algorithm-analysis_big-o-pause-and-think">
+    <title>Pause and Think</title>
+    <p>Take a moment to reflect on what you have read and practiced in
+              this section.</p>
+    <exercises>
+      <exercise label="bigo_reflect1">
+        <statement>
+          <p>In your own words, write a few sentences summarizing what you
+                    learned in this lesson today.</p>
+        </statement>
+        <response/>
+      </exercise>
+      <exercise label="bigo_reflect2">
+        <statement>
+          <p>What did you find challenging in this reading? Come up with a
+                    question you might ask your peers or post on the message board
+                    to help you better understand that concept.</p>
+        </statement>
+        <response/>
+      </exercise>
+    </exercises>
+  </subsection>
 </section>
